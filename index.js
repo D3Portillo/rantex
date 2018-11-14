@@ -1,5 +1,4 @@
 let cosonantVowel = true
-// if true it tries to respect "readable" text, example axxew => xewax
 let seed = {
   active: false,
   digits: false,
@@ -7,7 +6,6 @@ let seed = {
   specialChars: true,
   includeUpperCase: false,
   len: 500
-  //amount of chars
 }
 // seed is not active, if active evaluates if has lowUpCase digits and speciealChars
 
