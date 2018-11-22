@@ -1,11 +1,23 @@
 {
+  "name": "rantex",
+  "version": "0.0.3",
+  "description": "Random package to generate random stuff , cool, right?",
+  "main": "rantex.js",
+  "author": "Denny Portillo",
+  "license": "MIT",
   "dependencies": {
     "@babel/cli": "^7.1.5",
     "@babel/core": "^7.1.6",
-    "@babel/node":"^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.1.0"
+    "@babel/node": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/preset-env": "^7.1.6",
+    "uglify-js": "^3.4.9"
   },
   "scripts": {
-    "test": "yarn babel-node ./index.js"
+    "test": "yarn babel-node ./babel/dev/rantex.js",
+    "testing": "yarn babel babel/dev/rantex.js --out-file babel/testing/rantex.testing.js",
+    "dist": "yarn normalized & yarn minified",
+    "normalized": "yarn babel babel/testing/rantex.testing.js --out-file rantex.js",
+    "minified": "yarn uglifyjs babel/testing/rantex.testing.js  --compress --mangle --output rantex.min.js"
   }
 }
