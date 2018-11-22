@@ -8,8 +8,8 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/babel-node",
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/babel/dev/randoom.js",
+      "name": "Babel test",
+      "program": "${workspaceFolder}/babel/dev/rantex.js",
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart"
   }

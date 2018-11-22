@@ -4,7 +4,7 @@ Array.prototype.randomSort = function() {
 
 const SPECIAL_CHARS = ".-_$*()#@!%/".split("")
 
-class randoom {
+class rantex {
   constructor(options = {}) {
     this.SETTINGS = { ...this.SETTINGS, ...options }
     const { text, amount } = this.SETTINGS
@@ -22,7 +22,7 @@ class randoom {
     specialChars: false,
     upperCase: false,
     seedSize: 10,
-    almostReadableSeed: false,
+    moreVowels: false,
     consonantVowel: false,
     fixedText: false,
     amount: 0
@@ -95,7 +95,7 @@ class randoom {
         upperCase = this.newFilledArr(chunkSizeArr[currChunkPos])
           .map(_ =>
             [0, 1, 2, 3, 4, 0][
-              sett.almostReadableSeed ? this.roundedRand(5) : 1
+              sett.moreVowels ? this.roundedRand(5) : 1
             ]
               ? String.fromCharCode(65 + this.roundedRand(25))
               : this.randomVowel().toUpperCase()
@@ -108,7 +108,7 @@ class randoom {
         lowerCase = this.newFilledArr(chunkSizeArr[currChunkPos])
           .map(_ =>
             [0, 1, 2, 3, 4, 0][
-              sett.almostReadableSeed ? this.roundedRand(5) : 1
+              sett.moreVowels ? this.roundedRand(5) : 1
             ]
               ? String.fromCharCode(97 + this.roundedRand(25))
               : this.randomVowel()
@@ -128,7 +128,7 @@ class randoom {
                 SPECIAL_CHARS[this.roundedRand(this.allowedSpecialCharsLen())]
             )
             .join("") +
-          new randoom({
+          new rantex({
             ...this.SETTINGS,
             specialChars: false,
             seedSize: chunkSizeArr[currChunkPos] - specialCharsLen,
@@ -162,7 +162,7 @@ class randoom {
       randomPosLeft = randomPosLeft > 0 ? randomPosLeft : 0
       if (sett.fixedText) {
         let len = sett.text.length
-        response = new randoom({
+        response = new rantex({
           ...this.SETTINGS,
           text: ""
         })[0]
@@ -180,7 +180,7 @@ class randoom {
       if (sett.seedSize > response.length) {
         response =
           response +
-          new randoom({
+          new rantex({
             ...this.SETTINGS,
             text: "",
             seedSize: availPosLeft
@@ -201,3 +201,6 @@ class randoom {
     }
   }
 }
+
+
+console.log(new rantex({seedSize: 20, fixedText: true, text: "awesome", moreVowels: true, consonantVowel: true}))
