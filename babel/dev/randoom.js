@@ -14,7 +14,7 @@ class randoom {
   }
 
   allowedSpecialCharsLen = _ => SPECIAL_CHARS.length - 1
-  
+
   SETTINGS = {
     text: "",
     digits: false,
@@ -24,6 +24,7 @@ class randoom {
     seedSize: 10,
     almostReadableSeed: false,
     consonantVowel: false,
+    fixedText: false,
     amount: 0
   }
 
@@ -74,7 +75,7 @@ class randoom {
     const sett = this.SETTINGS
     if (sett.text == "") {
       let { digits, specialChars, lowerCase, upperCase } = sett
-      digits = lowerCase + upperCase <= 0 ? true : digits
+      digits = lowerCase + upperCase + specialChars <= 0 ? true : digits
       let seedSize = sett.seedSize
       let optionsOn = digits + specialChars + lowerCase + upperCase
       let chunkSize = Math.ceil(seedSize / optionsOn)
@@ -92,7 +93,13 @@ class randoom {
 
       if (upperCase) {
         upperCase = this.newFilledArr(chunkSizeArr[currChunkPos])
-          .map(_ => String.fromCharCode(65 + this.roundedRand(25)))
+          .map(_ =>
+            [0, 1, 2, 3, 4, 0][
+              sett.almostReadableSeed ? this.roundedRand(5) : 1
+            ]
+              ? String.fromCharCode(65 + this.roundedRand(25))
+              : this.randomVowel().toUpperCase()
+          )
           .join("")
         ++currChunkPos
       } else upperCase = ""
@@ -100,8 +107,8 @@ class randoom {
       if (lowerCase) {
         lowerCase = this.newFilledArr(chunkSizeArr[currChunkPos])
           .map(_ =>
-            [0, 1, 2, 3, 4, 5][
-              sett.almostReadableSeed ? this.roundedRand(2) : 1
+            [0, 1, 2, 3, 4, 0][
+              sett.almostReadableSeed ? this.roundedRand(5) : 1
             ]
               ? String.fromCharCode(97 + this.roundedRand(25))
               : this.randomVowel()
@@ -111,9 +118,11 @@ class randoom {
       } else lowerCase = ""
 
       if (specialChars) {
-        let noSpecialCharsLen = Math.round(chunkSizeArr[currChunkPos] * 0.6)
+        let specialCharsLen = Math.round(
+          chunkSizeArr[currChunkPos] * (optionsOn <= 1 ? 1 : 0.6)
+        )
         specialChars =
-          this.newFilledArr(noSpecialCharsLen)
+          this.newFilledArr(specialCharsLen)
             .map(
               _ =>
                 SPECIAL_CHARS[this.roundedRand(this.allowedSpecialCharsLen())]
@@ -122,7 +131,7 @@ class randoom {
           new randoom({
             ...this.SETTINGS,
             specialChars: false,
-            size: chunkSizeArr[currChunkPos] - noSpecialCharsLen,
+            seedSize: chunkSizeArr[currChunkPos] - specialCharsLen,
             amount: 0
           })[0]
         ++currChunkPos
@@ -146,34 +155,46 @@ class randoom {
         .split("")
         .randomSort()
         .join("")
-    } else if (sett.consonantVowel) {
-      let response = sett.text
-      if (sett.seedSize > response.length) {
-        response =
-          response +
-          new randoom({
-            ...this.SETTINGS,
-            text: "",
-            seedSize: sett.seedSize - response.length
-          })[0]
-        this.setVowels(response)
-        this.setConsonants(response)
-      }
-      return this.consonantVowel()
     } else {
       let response = sett.text
+      let availPosLeft = sett.seedSize - response.length
+      let randomPosLeft = this.roundedRand(availPosLeft)
+      randomPosLeft = randomPosLeft > 0 ? randomPosLeft : 0
+      if (sett.fixedText) {
+        let len = sett.text.length
+        response = new randoom({
+          ...this.SETTINGS,
+          text: ""
+        })[0]
+        if (sett.consonantVowel) {
+          this.setVowels(response)
+          this.setConsonants(response)
+          response = this.consonantVowel()
+        }
+        return (
+          response.substr(0, randomPosLeft) +
+          sett.text +
+          response.substr(randomPosLeft + len - 1)
+        )
+      }
       if (sett.seedSize > response.length) {
         response =
           response +
           new randoom({
             ...this.SETTINGS,
             text: "",
-            seedSize: sett.seedSize - response.length
+            seedSize: availPosLeft
           })[0]
       }
+
+      if (sett.consonantVowel) {
+        this.setVowels(response)
+        this.setConsonants(response)
+        return this.consonantVowel()
+      }
+
       return response
         .split("")
-        .randomSort()
         .reverse()
         .randomSort()
         .join("")
@@ -183,10 +204,47 @@ class randoom {
 
 console.log(
   new randoom({
-    consonantVowel: true,
-    seedSize: 20,
     text: "dennyportillo",
+    consonantVowel: true
+  })
+)
+
+console.log(
+  new randoom({
+    text: "dennyportillo"
+  })
+)
+
+console.log(
+  new randoom({
+    seedSize: 10,
+    text: "dennyportillo",
+    amount: 3,
+    consonantVowel: true
+  })
+)
+
+console.log(
+  new randoom({
+    seedSize: 20,
     almostReadableSeed: true,
-    amount: 10
+    consonantVowel: true,
+    digits: true,
+    specialChars: true
+  })
+)
+
+console.log(
+  new randoom({
+    seedSize: 20,
+    digits: true,
+    lowerCase: false
+  })
+)
+
+console.log(
+  new randoom({
+    specialChars: true,
+    lowerCase: false
   })
 )
