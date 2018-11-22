@@ -7,19 +7,22 @@ const SPECIAL_CHARS = ".-_$*()#@!%/".split("")
 class randoom {
   constructor(options = {}) {
     this.SETTINGS = { ...this.SETTINGS, ...options }
-    this.setVowels(this.SETTINGS.text)
-    this.setConsonants(this.SETTINGS.text)
-    return this.newFilledArr(options.amount).map(_ => this.generate())
+    const { text, amount } = this.SETTINGS
+    this.setVowels(text)
+    this.setConsonants(text)
+    return this.newFilledArr(amount < 1 ? 1 : amount).map(_ => this.generate())
   }
 
   allowedSpecialCharsLen = _ => SPECIAL_CHARS.length - 1
+  
   SETTINGS = {
     text: "",
-    digits: true,
+    digits: false,
     lowerCase: true,
     specialChars: false,
     upperCase: false,
     seedSize: 10,
+    almostReadableSeed: false,
     consonantVowel: false,
     amount: 0
   }
@@ -55,11 +58,23 @@ class randoom {
       .join("")
   }
 
+  consonantVowel = _ =>
+    this.consonantsTop
+      ? this.consonantVowelSort(this.vowels, this.consonants)
+      : this.vowels
+          .map((vowel, i) =>
+            this.consonants[i] ? this.consonants[i] + vowel : vowel
+          )
+          .randomSort()
+          .join("")
+
   newFilledArr = size => new Array(size).fill(0)
+  randomVowel = _ => ["a", "e", "i", "o", "u"][this.roundedRand(4)]
   generate = _ => {
     const sett = this.SETTINGS
     if (sett.text == "") {
       let { digits, specialChars, lowerCase, upperCase } = sett
+      digits = lowerCase + upperCase <= 0 ? true : digits
       let seedSize = sett.seedSize
       let optionsOn = digits + specialChars + lowerCase + upperCase
       let chunkSize = Math.ceil(seedSize / optionsOn)
@@ -84,7 +99,13 @@ class randoom {
 
       if (lowerCase) {
         lowerCase = this.newFilledArr(chunkSizeArr[currChunkPos])
-          .map(_ => String.fromCharCode(97 + this.roundedRand(25)))
+          .map(_ =>
+            [0, 1, 2, 3, 4, 5][
+              sett.almostReadableSeed ? this.roundedRand(2) : 1
+            ]
+              ? String.fromCharCode(97 + this.roundedRand(25))
+              : this.randomVowel()
+          )
           .join("")
         ++currChunkPos
       } else lowerCase = ""
@@ -113,23 +134,44 @@ class randoom {
           .join("")
       else digits = ""
 
-      return [lowerCase, upperCase, digits, specialChars]
+      let response = [lowerCase, upperCase, digits, specialChars]
         .randomSort()
         .join("")
+      if (sett.lowerCase + sett.upperCase > 1 && sett.consonantVowel) {
+        this.setVowels(response)
+        this.setConsonants(response)
+        return this.consonantVowel()
+      }
+      return response
         .split("")
         .randomSort()
         .join("")
     } else if (sett.consonantVowel) {
-      return this.consonantsTop
-        ? this.consonantVowelSort(this.vowels, this.consonants)
-        : this.vowels
-            .map((vowel, i) =>
-              this.consonants[i] ? this.consonants[i] + vowel : vowel
-            )
-            .randomSort()
-            .join("")
+      let response = sett.text
+      if (sett.seedSize > response.length) {
+        response =
+          response +
+          new randoom({
+            ...this.SETTINGS,
+            text: "",
+            seedSize: sett.seedSize - response.length
+          })[0]
+        this.setVowels(response)
+        this.setConsonants(response)
+      }
+      return this.consonantVowel()
     } else {
-      return sett.text
+      let response = sett.text
+      if (sett.seedSize > response.length) {
+        response =
+          response +
+          new randoom({
+            ...this.SETTINGS,
+            text: "",
+            seedSize: sett.seedSize - response.length
+          })[0]
+      }
+      return response
         .split("")
         .randomSort()
         .reverse()
@@ -139,4 +181,12 @@ class randoom {
   }
 }
 
-console.log(new randoom({ specialChars: true, seedSize: 20, amount: 10 }))
+console.log(
+  new randoom({
+    consonantVowel: true,
+    seedSize: 20,
+    text: "dennyportillo",
+    almostReadableSeed: true,
+    amount: 10
+  })
+)
