@@ -6,6 +6,6 @@
     "@babel/plugin-proposal-class-properties": "^7.1.0"
   },
   "scripts": {
-    "test": "yarn babel-node ./babel/dev/randoom.js"
+    "test": "yarn babel-node ./index.js"
   }
 }

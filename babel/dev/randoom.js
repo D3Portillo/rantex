@@ -1,36 +1,36 @@
+Array.prototype.randomSort = function() {
+  return this.sort((a, b) => 0.5 - Math.random())
+}
+
+const SPECIAL_CHARS = ".-_$*()#@!%/".split("")
+
 class randoom {
-  constructor(options = {text:""}) {
-    this.SETTINGS = { ...options }
+  constructor(options = {}) {
+    this.SETTINGS = { ...this.SETTINGS, ...options }
     this.setVowels(this.SETTINGS.text)
     this.setConsonants(this.SETTINGS.text)
-    this.generate()
+    return this.newFilledArr(options.amount).map(_ => this.generate())
   }
 
-  init() {
-    Array.prototype.randomSort = function() {
-      return this.sort((a, b) => 0.5 - Math.random())
-    }
-    window.allowedSpecialChars = ".-_$*()#@!%/".split("")
-    window.allowedSpecialCharsLen = allowedSpecialChars.length - 1
-  }
-
+  allowedSpecialCharsLen = _ => SPECIAL_CHARS.length - 1
   SETTINGS = {
     text: "",
     digits: true,
-    includeLowerCase: true,
+    lowerCase: true,
     specialChars: false,
-    includeUpperCase: false,
-    size: 0,
-    consonantVowel: false
+    upperCase: false,
+    seedSize: 10,
+    consonantVowel: false,
+    amount: 0
   }
 
-  consonants = ""
+  consonants = []
   setConsonants = consonants => {
-    consonants = consonants.match(/[aeiou]/gi)
+    consonants = consonants.match(/[^aeiou]/gi)
     this.consonants = consonants != null ? consonants.randomSort() : []
   }
 
-  vowels = ""
+  vowels = []
   setVowels = vowels => {
     vowels = vowels.match(/[aeiou]/gi)
     this.vowels = vowels != null ? vowels.randomSort() : []
@@ -44,7 +44,7 @@ class randoom {
     if (voLen <= 0) return con.join("")
     let arrPos = []
     while (true) {
-      let randPos = roundedRand(conLen)
+      let randPos = this.roundedRand(conLen)
       if (arrPos.indexOf(randPos) < 0) arrPos.push(randPos)
       if (arrPos.length === voLen) break
     }
@@ -59,10 +59,9 @@ class randoom {
   generate = _ => {
     const sett = this.SETTINGS
     if (sett.text == "") {
-      let { digits, specialChars, includeLowerCase, includeUpperCase } = sett
-      let seedSize = sett.size
-      let optionsOn =
-        digits + specialChars + includeLowerCase + includeUpperCase
+      let { digits, specialChars, lowerCase, upperCase } = sett
+      let seedSize = sett.seedSize
+      let optionsOn = digits + specialChars + lowerCase + upperCase
       let chunkSize = Math.ceil(seedSize / optionsOn)
       let chunkSizeArr = new Array(optionsOn).fill(chunkSize)
       chunkSizeArr.map(chunk => 1 + this.roundedRand(chunk))
@@ -76,19 +75,19 @@ class randoom {
       chunkSizeArr.randomSort()
       let currChunkPos = 0
 
-      if (includeUpperCase) {
-        includeUpperCase = this.newFilledArr(chunkSizeArr[currChunkPos])
-          .map(_ => String.fromCharCode(65 + roundedRand(25)))
+      if (upperCase) {
+        upperCase = this.newFilledArr(chunkSizeArr[currChunkPos])
+          .map(_ => String.fromCharCode(65 + this.roundedRand(25)))
           .join("")
         ++currChunkPos
-      } else includeUpperCase = ""
+      } else upperCase = ""
 
-      if (includeLowerCase) {
-        includeLowerCase = this.newFilledArr(chunkSizeArr[currChunkPos])
-          .map(_ => String.fromCharCode(97 + roundedRand(25)))
+      if (lowerCase) {
+        lowerCase = this.newFilledArr(chunkSizeArr[currChunkPos])
+          .map(_ => String.fromCharCode(97 + this.roundedRand(25)))
           .join("")
         ++currChunkPos
-      } else includeLowerCase = ""
+      } else lowerCase = ""
 
       if (specialChars) {
         let noSpecialCharsLen = Math.round(chunkSizeArr[currChunkPos] * 0.6)
@@ -96,26 +95,25 @@ class randoom {
           this.newFilledArr(noSpecialCharsLen)
             .map(
               _ =>
-                window.allowedSpecialChars[
-                  this.roundedRand(window.allowedSpecialCharsLen)
-                ]
+                SPECIAL_CHARS[this.roundedRand(this.allowedSpecialCharsLen())]
             )
             .join("") +
-          randoom({
+          new randoom({
             ...this.SETTINGS,
             specialChars: false,
-            size: chunkSizeArr[currChunkPos] - noSpecialCharsLen
-          })
+            size: chunkSizeArr[currChunkPos] - noSpecialCharsLen,
+            amount: 0
+          })[0]
         ++currChunkPos
       } else specialChars = ""
 
       if (digits)
         digits = this.newFilledArr(chunkSizeArr[currChunkPos])
-          .map(_ => roundedRand(9))
+          .map(_ => this.roundedRand(9))
           .join("")
       else digits = ""
 
-      return [includeLowerCase, includeUpperCase, digits, specialChars]
+      return [lowerCase, upperCase, digits, specialChars]
         .randomSort()
         .join("")
         .split("")
@@ -141,4 +139,4 @@ class randoom {
   }
 }
 
-let r = new randoom()
+console.log(new randoom({ specialChars: true, seedSize: 20, amount: 10 }))
