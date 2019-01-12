@@ -9,7 +9,7 @@
       "request": "launch",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/babel-node",
       "name": "Babel test",
-      "program": "${workspaceFolder}/babel/dev/rantex.js",
+      "program": "${workspaceFolder}/babel/test/node-test.js",
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart"
   }
